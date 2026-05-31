@@ -6,11 +6,12 @@
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![REST API](https://img.shields.io/badge/Architecture-REST_API-orange?style=for-the-badge)
 
-Este repositório contém a implementação da nova etapa da disciplina de **Sistemas Distribuídos** do curso de Engenharia de Computação da **Universidade Federal do Ceará (UFC) - Campus Quixadá**, sob orientação do **Professor Rafael Braga**.
+Este repositório contém a implementação da entrega 3 da disciplina de **Sistemas Distribuídos** do curso de Engenharia de Computação da **Universidade Federal do Ceará (UFC) - Campus Quixadá**, sob orientação do **Professor Rafael Braga**.
 
 O objetivo deste projeto é evoluir o sistema de atendimento de telecomunicações, abandonando o middleware RMI e reimplementando o serviço remoto através de uma arquitetura baseada em **Web Services / API REST**, com comunicação HTTP estruturada no modelo Cliente-Servidor.
 
-**Regras de Ouro do Projeto:** 1. É terminantemente proibido o uso de Sockets nativos ou RMI. 
+**Regras do Projeto:** 
+1. É terminantemente proibido o uso de Sockets nativos ou RMI. 
 2. Os clientes devem ser implementados em, pelo menos, **2 (duas) linguagens de programação diferentes** da linguagem do servidor.
 3. A avaliação exige a interação em rede real entre os computadores dos integrantes da dupla.
 
