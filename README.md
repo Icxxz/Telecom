@@ -45,10 +45,34 @@ Para atender à exigência de linguagens distintas:
 
 A arquitetura foi projetada para rodar de forma distribuída. Um estudante deve rodar o servidor, enquanto o outro conecta através dos clientes. Ambos devem estar na mesma rede (LAN/VPN).
 
-### Passo 1: O Servidor (Estudante A)
+### Passo 1: O Servidor (Usuário A)
 
-1. Descubra o IP local da sua máquina (use `ipconfig` no Windows ou `ip a` no Linux). Guarde este IP para passar ao Estudante B.
+1. Descubra o IP local da sua máquina (use `ipconfig` no Windows ou `ip a` no Linux). Guarde este IP para passar ao Usuário B.
 2. Abra o terminal na pasta raiz do projeto Java (onde está o arquivo `pom.xml`).
 3. Execute o servidor Spring Boot com o Maven Wrapper:
 ```bash
 ./mvnw clean spring-boot:run
+```
+
+(No Windows, utilize mvnw clean spring-boot:run).
+Aguarde a mensagem: Tomcat started on port 8080.
+
+### Passo 2: Os Clientes (Usuário B)
+Abra os arquivos fonte dos clientes (cliente.py e cliente.js).
+
+Altere a variável BASE_URL para apontar para o IP do Estudante A:
+
+Exemplo: BASE_URL = "http://192.168.1.50:8080/api/telecom"
+
+Para executar o Cliente Python:
+(Requer pip install requests)
+```bash
+python3 cliente.py
+```
+
+Para executar o Cliente Node.js:
+(Requer Node.js instalado)
+
+```bash
+node cliente.js
+```
