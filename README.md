@@ -1,92 +1,53 @@
-#  Sistema de Telecomunicações Distribuído (Java RMI com Protocolo de Requisição-Resposta)
+# Sistema de Telecomunicações Distribuído (API REST com Spring Boot)
 
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white)
-![RMI](https://img.shields.io/badge/RMI-Remote__Method__Invocation-blue?style=for-the-badge)
-![JSON](https://img.shields.io/badge/Format-JSON_Bytes-orange?style=for-the-badge)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![REST API](https://img.shields.io/badge/Architecture-REST_API-orange?style=for-the-badge)
 
-Este repositório contém a implementação do **Trabalho 2** da disciplina de **Sistemas Distribuídos** do curso de Engenharia de Computação da **Universidade Federal do Ceará (UFC) - Campus Quixadá**, sob orientação do **Professor Rafael Braga**.
+Este repositório contém a implementação da nova etapa da disciplina de **Sistemas Distribuídos** do curso de Engenharia de Computação da **Universidade Federal do Ceará (UFC) - Campus Quixadá**, sob orientação do **Professor Rafael Braga**.
 
-O objetivo deste projeto é reimplementar o sistema de atendimento de telecomunicações do Trabalho 1 utilizando o paradigma de **Invocação Remota de Método (RMI)** como meio de transporte, mas organizando a comunicação de forma explícita através de um **Protocolo de Requisição-Resposta** baseado na Seção 5.2 do livro-texto da disciplina.
+O objetivo deste projeto é evoluir o sistema de atendimento de telecomunicações, abandonando o middleware RMI e reimplementando o serviço remoto através de uma arquitetura baseada em **Web Services / API REST**, com comunicação HTTP estruturada no modelo Cliente-Servidor.
 
-**Regra de Ouro do Projeto:** É terminantemente proibido o uso de Sockets nativos (`java.net.Socket` ou `DatagramSocket`). Toda a comunicação trafega sobre a infraestrutura do RMI, porém de forma opaca (trafegando arrays de bytes manuais).
-
----
-
-##  Arquitetura e Estrutura de Objetos
-
-Para atender integralmente aos requisitos de modelagem orientada a objetos e persistência local exigidos no enunciado, o sistema foi estruturado da seguinte forma:
-
-### 1. Entidades de Domínio (Mapeamento)
-* **Classes Tipo Entidade (5):** `Linha`, `Servico`, `SigaMe`, `Secretaria` e `ClienteEmpresa`.
-* **Composição do tipo Extensão ("É-Um" / Herança) [Mínimo 2]:** 
-  * `SigaMe` estende (`extends`) `Servico`.
-  * `Secretaria` estende (`extends`) `Servico`.
-* **Composição do tipo Agregação ("Tem-Um") [Mínimo 2]:** 
-  * `Linha` possui uma lista agregada de serviços contratados (`List<Servico>`).
-  * `ClienteEmpresa` possui uma lista agregada de linhas corporativas (`List<Linha>`).
-
-### 2. Semântica de Passagem de Parâmetros
-* **Passagem por Referência:** Utilizada no objeto remoto central (`GatewayImpl`), que estende `UnicastRemoteObject` e implementa a interface `GatewayRMI`.
-* **Passagem por Valor:** Utilizada na execução dos objetos locais no servidor (`ReclamacaoServiceImpl`). Os argumentos e resultados são encapsulados em formato de **Representação Externa de Dados (EDR)** usando **JSON estruturado em arrays de bytes (`byte[]`)**, garantindo que o estado viaje por cópia completa.
+**Regras de Ouro do Projeto:** 1. É terminantemente proibido o uso de Sockets nativos ou RMI. 
+2. Os clientes devem ser implementados em, pelo menos, **2 (duas) linguagens de programação diferentes** da linguagem do servidor.
+3. A avaliação exige a interação em rede real entre os computadores dos integrantes da dupla.
 
 ---
 
-##  O Protocolo de Requisição-Resposta (Seção 5.2)
+##  Arquitetura e Tecnologias
 
-Em vez de expor métodos de negócio transparentes via RMI (o que violaria o propósito de entender a camada de middleware), a interface remota expõe um único método despachante genérico (**Gateway/Dispatcher Pattern**):
+A aplicação foi migrada de um modelo de "Invocação Remota" (RPC/RMI) para o padrão arquitetural **REST**, garantindo maior interoperabilidade.
 
-```java
-public interface GatewayRMI extends java.rmi.Remote {
-    byte[] doOperation(byte[] mensagemEmpacotada) throws java.rmi.RemoteException;
-}
-```
+### 1. O Servidor (Java + Spring Boot)
+A lógica de negócio (`ReclamacaoServiceImpl`) e as entidades de domínio (`Linha`, `Servico`, `ClienteEmpresa`) foram integralmente preservadas. A camada de rede manual (antigo `GatewayRMI`) foi substituída por um **Controller Spring Boot** (`TelecomController`), que expõe endpoints HTTP e gerencia a conversão de/para JSON de forma nativa.
+
+### 2. Os Clientes (Poliglotismo)
+Para atender à exigência de linguagens distintas:
+* **Cliente 1 (Python):** Utiliza a biblioteca `requests` para interagir com a API de forma síncrona através de um menu interativo no terminal.
+* **Cliente 2 (JavaScript / Node.js):** Utiliza a API `fetch` nativa e o módulo `readline` para prover uma interface de terminal assíncrona orientada a eventos.
+
+---
+
 ## Fluxo de Execução Simplificado
 
-1. **ClienteRMI**: O usuário interage com o menu CLI. Ao escolher "Registrar Reclamação", os dados de entrada são convertidos em uma string JSON local.  
+1. **Interação CLI:** O usuário interage com o menu no cliente (Python ou Node.js) e insere os dados da reclamação ou da consulta.
+2. **Requisição HTTP:** O cliente serializa os dados (quando necessário) e dispara uma requisição HTTP (`GET` ou `POST`) para o endpoint específico no servidor Spring Boot (ex: `/api/telecom/reclamacoes`).
+3. **Roteamento e Desserialização:** O Tomcat embutido no Spring Boot recebe a requisição, o framework desserializa o JSON do *body* automaticamente em objetos Java e injeta no método correspondente do `TelecomController`.
+4. **Processamento:** A lógica de persistência local em memória é executada (geração de protocolo UUID, buscas em HashMap).
+5. **Retorno (Response):** O servidor devolve uma resposta HTTP 200 (OK) contendo o status ou protocolo gerado, que é exibido no console do cliente.
 
+---
 
-2. **Empacotamento**: O cliente monta o objeto de protocolo contendo ``messageType = 0`` , gera um ``requestId`` sequencial, define o ``methodId`` e injeta os argumentos. Tudo isso é convertido em bytes (``.getBytes()``).  
+##  Como Compilar, Executar e Testar (Interação da Dupla)
 
+A arquitetura foi projetada para rodar de forma distribuída. Um estudante deve rodar o servidor, enquanto o outro conecta através dos clientes. Ambos devem estar na mesma rede (LAN/VPN).
 
-3. **Transporte RMI**: O cliente invoca ``gateway.doOperation(bytes)``. O RMI encapsula esses bytes e envia ao Servidor.  
+### Passo 1: O Servidor (Estudante A)
 
-
-4. **Despacho (ServidorRMI)**: O ``GatewayImpl`` intercepta os bytes recebidos via ``getRequest()`` , faz o desempacotamento, lê o cabeçalho, descobre o método solicitado e repassa os parâmetros por valor para a instância local de ``ReclamacaoServiceImpl``.  
-
-
-5. **Retorno (Reply)**: O resultado gerado pela lógica local ("Reclamação registrada com sucesso...") é envelopado em um novo pacote com ``messageType = 1`` , convertido em bytes e devolvido como retorno do método RMI através do ``sendReply()``. O cliente desempacota e exibe na tela.
-
-## Como Compilar e Executar
-
-Como o servidor inicia o registro de nomes dinamicamente via código (``LocateRegistry.createRegistry``), não é necessário rodar o utilitário ´´rmiregistry´´ do sistema operacional por fora.
-
-**1. Clonar o Repositório**
-```
-git clone [https://github.com/Biaald/TelecomRMI.git](https://github.com/Biaald/TelecomRMI.git)
-cd TelecomRMI
-```
-
-**2. Compilar os Arquivos Java**
-
-Abra o terminal na pasta do projeto e execute:
-```
-javac *.java
-```
-
-**3. Iniciar o ServidorRMI (Gateway)**
-
-Execute o servidor central para abrir a porta de escuta RMI:
-```
-java ServidorRMI
-```
-
-Mensagem esperada no console: ``--- Gateway RMI Pronto ---``
-
-**4. Iniciar o ClienteRMI**
-
-Abra uma nova janela ou aba do terminal e execute a interface do cliente:
-
-```
-java ClienteRMI
-```
-
+1. Descubra o IP local da sua máquina (use `ipconfig` no Windows ou `ip a` no Linux). Guarde este IP para passar ao Estudante B.
+2. Abra o terminal na pasta raiz do projeto Java (onde está o arquivo `pom.xml`).
+3. Execute o servidor Spring Boot com o Maven Wrapper:
+```bash
+./mvnw clean spring-boot:run
