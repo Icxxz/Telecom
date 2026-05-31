@@ -1,0 +1,8 @@
+com/telecom/api/Servico.class
+com/telecom/api/Linha.class
+com/telecom/api/SigaMe.class
+com/telecom/api/ApiApplication.class
+com/telecom/api/Secretaria.class
+com/telecom/api/ClienteEmpresa.class
+com/telecom/api/TelecomController.class
+com/telecom/api/ReclamacaoServiceImpl.class
