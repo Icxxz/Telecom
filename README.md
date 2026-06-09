@@ -76,3 +76,6 @@ Para executar o Cliente Node.js:
 ```bash
 node cliente.js
 ```
+
+https://drive.google.com/file/d/1FWH27zuOUlCZmy3JDZTqELAVQ5WJkqjE/view?usp=sharing
+Video da prática
